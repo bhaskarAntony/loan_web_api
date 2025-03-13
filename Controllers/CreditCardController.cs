@@ -17,13 +17,13 @@ namespace LoanManagementSystem.Controllers
             _creditCardRepository = creditCardRepository;
         }
 
-        // ✅ Get All Credit Cards for a User
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetCreditCardsByUserId(int userId)
-        {
-            var creditCards = await _creditCardRepository.GetCreditCardsByUserId(userId);
-            return Ok(creditCards);
-        }
+        // // ✅ Get All Credit Cards for a User
+        // [HttpGet("user/{userId}")]
+        // public async Task<IActionResult> GetCreditCardsByUserId(int userId)
+        // {
+        //     var creditCards = await _creditCardRepository.GetCreditCardsByUserId(userId);
+        //     return Ok(creditCards);
+        // }
 
         // ✅ Get a Single Credit Card by ID
         [HttpGet("{id}")]

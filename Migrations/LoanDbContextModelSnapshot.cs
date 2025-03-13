@@ -41,9 +41,8 @@ namespace LoanManagementSystem.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ExpiryDate")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime");
 
                     b.Property<int>("LoanId")
                         .HasColumnType("int");
@@ -74,7 +73,9 @@ namespace LoanManagementSystem.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("AppliedTime")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<DateTime?>("ApprovedTime")
                         .HasColumnType("datetime2");
@@ -128,7 +129,9 @@ namespace LoanManagementSystem.Api.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("AppliedTime")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<DateTime?>("ApprovedTime")
                         .HasColumnType("datetime2");
@@ -221,8 +224,7 @@ namespace LoanManagementSystem.Api.Migrations
 
             modelBuilder.Entity("LoanManagementSystem.Models.Loan", b =>
                 {
-                    b.Navigation("CreditCard")
-                        .IsRequired();
+                    b.Navigation("CreditCard");
                 });
 
             modelBuilder.Entity("LoanManagementSystem.Models.User", b =>

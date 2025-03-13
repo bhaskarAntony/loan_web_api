@@ -1,8 +1,6 @@
 using LoanManagementSystem.Data;
 using LoanManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace LoanManagementSystem.Repositories
@@ -16,30 +14,42 @@ namespace LoanManagementSystem.Repositories
             _context = context;
         }
 
-        public async Task<List<CreditCard>> GetCreditCardsByUserId(int userId)
+        // ✅ Get Credit Card by Loan ID
+        public async Task<CreditCard> GetCreditCardByLoanId(int loanId)
         {
             return await _context.CreditCards
-                .Where(c => c.Loan.UserId == userId)
-                .ToListAsync();  // ✅ Ensure it returns a List
+                .Include(cc => cc.Loan)
+                .FirstOrDefaultAsync(cc => cc.LoanId == loanId);
         }
 
+        // ✅ Get Credit Card by Number for Uniqueness Check
+        public async Task<CreditCard> GetCreditCardByNumberAsync(string cardNumber)
+        {
+            return await _context.CreditCards
+                .FirstOrDefaultAsync(cc => cc.CardNumber == cardNumber);
+        }
+
+        // ✅ Get Credit Card by ID (NEW)
         public async Task<CreditCard> GetCreditCardById(int id)
         {
             return await _context.CreditCards
-                .Include(c => c.Loan)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .Include(cc => cc.Loan)
+                .FirstOrDefaultAsync(cc => cc.Id == id);
         }
 
+        // ✅ Add a New Credit Card
         public async Task AddCreditCard(CreditCard creditCard)
         {
             await _context.CreditCards.AddAsync(creditCard);
         }
 
+        // ✅ Delete Credit Card (NEW)
         public void DeleteCreditCard(CreditCard creditCard)
         {
             _context.CreditCards.Remove(creditCard);
         }
 
+        // ✅ Save Changes
         public async Task<bool> SaveChanges()
         {
             return await _context.SaveChangesAsync() > 0;

@@ -6,7 +6,7 @@ namespace LoanManagementSystem.Models
     {
         public int Id { get; set; }
         public string CardNumber { get; set; }
-        public string ExpiryDate { get; set; }
+        public DateTime ExpiryDate { get; set; }  // ✅ Change to DateTime
         public string CVV { get; set; }
         public decimal ApprovedAmount { get; set; }
 

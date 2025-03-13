@@ -167,3 +167,9 @@ C:\new\LoanManagementSystem.Api\obj\Debug\net8.0\refint\LoanManagementSystem.Api
 C:\new\LoanManagementSystem.Api\obj\Debug\net8.0\LoanManagementSystem.Api.pdb
 C:\new\LoanManagementSystem.Api\obj\Debug\net8.0\LoanManagementSystem.Api.genruntimeconfig.cache
 C:\new\LoanManagementSystem.Api\obj\Debug\net8.0\ref\LoanManagementSystem.Api.dll
+C:\new\LoanManagementSystem.Api\obj\Debug\net8.0\LoanManagementSystem.Api.sourcelink.json
+C:\new\LoanManagementSystem.Api\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
+C:\new\LoanManagementSystem.Api\bin\Debug\net8.0\MailKit.dll
+C:\new\LoanManagementSystem.Api\bin\Debug\net8.0\MimeKit.dll
+C:\new\LoanManagementSystem.Api\bin\Debug\net8.0\System.Security.Cryptography.Pkcs.dll
+C:\new\LoanManagementSystem.Api\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll

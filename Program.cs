@@ -19,7 +19,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IKycRepository, KycRepository>();
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<ICreditCardRepository, CreditCardRepository>(); // ✅ Register CreditCardRepository
-builder.Services.AddScoped<OtpService>(); // ✅ Register OTP Service
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<OtpService>();
 
 // ✅ Enable CORS
 builder.Services.AddCors(options =>

@@ -23,6 +23,24 @@ namespace LoanManagementSystem.Data
                 .HasMany(u => u.Loans)
                 .WithOne(l => l.User)
                 .HasForeignKey(l => l.UserId);
+
+            modelBuilder.Entity<Loan>()
+                .HasOne(l => l.CreditCard)
+                .WithOne(c => c.Loan)
+                .HasForeignKey<CreditCard>(c => c.LoanId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CreditCard>()
+                .Property(c => c.ExpiryDate)
+                .HasColumnType("datetime");
+
+            modelBuilder.Entity<Loan>()
+                .Property(l => l.AppliedTime)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            modelBuilder.Entity<Kyc>()
+                .Property(k => k.AppliedTime)
+                .HasDefaultValueSql("GETUTCDATE()");
         }
     }
 }
