@@ -5,7 +5,7 @@
 namespace LoanManagementSystem.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateLoanControllerssssdddd : Migration
+    public partial class InitialCreateCorrected598y40058e : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -1,15 +1,19 @@
 using LoanManagementSystem.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace LoanManagementSystem.Repositories
 {
     public interface ICreditCardRepository
     {
-        Task<CreditCard> GetCreditCardByLoanId(int loanId);   // Get Credit Card by Loan ID
-        Task<CreditCard> GetCreditCardByNumberAsync(string cardNumber);  // Get Credit Card by Number
-        Task<CreditCard> GetCreditCardById(int id);            // 🔹 New Method: Get Credit Card by ID
+        Task<CreditCard> GetCreditCardByLoanId(int loanId);
+        Task<CreditCard> GetCreditCardById(int id);
+        Task<CreditCard> GetCreditCardByNumberAsync(string cardNumber);
+        Task<IEnumerable<CreditCard>> GetAllCreditCards();
+        Task<List<CreditCardTransaction>> GetTransactionsByCardNumber(string cardNumber);
+        Task AddTransaction(CreditCardTransaction transaction);
         Task AddCreditCard(CreditCard creditCard);
-        void DeleteCreditCard(CreditCard creditCard);          // 🔹 New Method: Delete Credit Card
+        void DeleteCreditCard(CreditCard creditCard);
         Task<bool> SaveChanges();
     }
 }

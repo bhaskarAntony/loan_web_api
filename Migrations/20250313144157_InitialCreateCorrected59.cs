@@ -5,7 +5,7 @@
 namespace LoanManagementSystem.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateExpiryDateTyped : Migration
+    public partial class InitialCreateCorrected59 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

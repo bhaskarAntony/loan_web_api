@@ -40,6 +40,25 @@ namespace LoanManagementSystem.Services
 
             await smtpClient.SendMailAsync(mailMessage);
         }
+        public string GenerateDebitAlertEmail(string senderName, decimal amount, decimal remainingBalance)
+{
+    return $@"
+        <h3>💸 Debit Alert</h3>
+        <p>Hello {senderName},</p>
+        <p>₹{amount} has been debited from your card.</p>
+        <p>Remaining balance: ₹{remainingBalance}</p>
+    ";
+}
+
+public string GenerateCreditAlertEmail(string receiverName, decimal amount, string senderName)
+{
+    return $@"
+        <h3>💰 Credit Alert</h3>
+        <p>Hello {receiverName},</p>
+        <p>You have received ₹{amount} from {senderName}.</p>
+    ";
+}
+
 
         public string GenerateOnboardingEmail(string userName, string loanAmount, string creditCardNumber, string expiryDate)
         {

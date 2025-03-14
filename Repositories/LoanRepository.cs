@@ -16,10 +16,18 @@ namespace LoanManagementSystem.Repositories
         }
 
         // ✅ Get All Loans
+        // public async Task<IEnumerable<Loan>> GetAllLoans()
+        // {
+        //     return await _context.Loans.ToListAsync();
+        // }
+
         public async Task<IEnumerable<Loan>> GetAllLoans()
         {
-            return await _context.Loans.ToListAsync();
+            return await _context.Loans
+                .Include(l => l.User) // Include User for mapping
+                .ToListAsync();
         }
+        
 
         // ✅ Get Loan by ID
         public async Task<Loan> GetLoanById(int id)
@@ -47,6 +55,11 @@ namespace LoanManagementSystem.Repositories
         public void DeleteLoan(Loan loan)
         {
             _context.Loans.Remove(loan);
+        }
+
+        public async Task UpdateLoan(Loan loan)
+        {
+            _context.Loans.Update(loan); // Explicitly mark as modified (optional, since tracked)
         }
 
         // ✅ Save Changes with Improved Logic

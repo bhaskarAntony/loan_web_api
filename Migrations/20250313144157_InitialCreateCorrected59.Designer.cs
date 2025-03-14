@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoanManagementSystem.Api.Migrations
 {
     [DbContext(typeof(LoanDbContext))]
-    [Migration("20250313084746_UpdateExpiryDateTypeddddddkd")]
-    partial class UpdateExpiryDateTypeddddddkd
+    [Migration("20250313144157_InitialCreateCorrected59")]
+    partial class InitialCreateCorrected59
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,22 +45,52 @@ namespace LoanManagementSystem.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime");
+                        .HasColumnType("datetime2");
 
-                    b.Property<int>("LoanId")
+                    b.Property<int?>("LoanId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LoanId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[LoanId] IS NOT NULL");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("CreditCards");
+                });
+
+            modelBuilder.Entity("LoanManagementSystem.Models.CreditCardTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ReceiverCardNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderCardNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CreditCardTransactions");
                 });
 
             modelBuilder.Entity("LoanManagementSystem.Models.Kyc", b =>
@@ -76,9 +106,7 @@ namespace LoanManagementSystem.Api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("AppliedTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("ApprovedTime")
                         .HasColumnType("datetime2");
@@ -132,9 +160,7 @@ namespace LoanManagementSystem.Api.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("AppliedTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("ApprovedTime")
                         .HasColumnType("datetime2");
@@ -179,6 +205,10 @@ namespace LoanManagementSystem.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -193,14 +223,17 @@ namespace LoanManagementSystem.Api.Migrations
                     b.HasOne("LoanManagementSystem.Models.Loan", "Loan")
                         .WithOne("CreditCard")
                         .HasForeignKey("LoanManagementSystem.Models.CreditCard", "LoanId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("LoanManagementSystem.Models.User", "User")
+                        .WithMany("CreditCards")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("LoanManagementSystem.Models.User", null)
-                        .WithMany("CreditCards")
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Loan");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("LoanManagementSystem.Models.Kyc", b =>
@@ -219,7 +252,7 @@ namespace LoanManagementSystem.Api.Migrations
                     b.HasOne("LoanManagementSystem.Models.User", "User")
                         .WithMany("Loans")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");

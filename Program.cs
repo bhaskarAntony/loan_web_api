@@ -26,7 +26,7 @@ builder.Services.AddScoped<OtpService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        builder => builder.WithOrigins("http://localhost:3000") // ✅ Allow frontend
+        builder => builder.WithOrigins("http://localhost:5173") // ✅ Allow frontend
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });

@@ -6,7 +6,7 @@ namespace LoanManagementSystem.Repositories
 {
     public interface ILoanRepository
     {
-        Task<IEnumerable<Loan>> GetAllLoans();
+      Task<IEnumerable<Loan>> GetAllLoans();
         Task<Loan> GetLoanById(int id);
         Task<Loan> GetLoanByUserId(int userId); // New method for fetching by UserId
         Task AddLoan(Loan loan);

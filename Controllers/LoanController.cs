@@ -1,10 +1,11 @@
+using LoanManagementSystem.Data;
 using LoanManagementSystem.Models;
 using LoanManagementSystem.Repositories;
 using LoanManagementSystem.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LoanManagementSystem.Controllers
@@ -17,23 +18,33 @@ namespace LoanManagementSystem.Controllers
         private readonly IKycRepository _kycRepository;
         private readonly ICreditCardRepository _creditCardRepository;
         private readonly EmailService _emailService;
+        private readonly LoanDbContext _context;
 
         public LoanController(
             ILoanRepository loanRepository,
             IKycRepository kycRepository,
             ICreditCardRepository creditCardRepository,
-            EmailService emailService)
+            EmailService emailService,
+            LoanDbContext context)
         {
             _loanRepository = loanRepository;
             _kycRepository = kycRepository;
             _creditCardRepository = creditCardRepository;
             _emailService = emailService;
+            _context = context;
         }
 
-        // ✅ Apply for a Loan (Only if KYC is Approved)
-        /// <summary>
-        /// Apply for a loan with an approved KYC
-        /// </summary>
+        // ✅ Get All Loan Applications (New Endpoint)
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllLoans()
+        {
+            var loans = await _loanRepository.GetAllLoans();
+            var loanDtos = loans.Select(l => MapToLoanDto(l)).ToList();
+            return Ok(loanDtos);
+        }
+
+        // ✅ Apply for a Loan
         [HttpPost("apply")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -43,6 +54,12 @@ namespace LoanManagementSystem.Controllers
             if (kyc == null || kyc.Status != "Approved")
             {
                 return BadRequest("Loan cannot be applied without an approved KYC.");
+            }
+
+            var existingLoan = await _loanRepository.GetLoanByUserId(request.UserId);
+            if (existingLoan != null && existingLoan.Status == "Pending")
+            {
+                return BadRequest("You already have a pending loan.");
             }
 
             Loan loan = new Loan
@@ -61,13 +78,11 @@ namespace LoanManagementSystem.Controllers
         }
 
         // ✅ Approve Loan and Generate Digital Credit Card
-        /// <summary>
-        /// Approve loan and generate a digital credit card
-        /// </summary>
         [HttpPut("approve/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ApproveLoan(int id)
         {
             var loan = await _loanRepository.GetLoanById(id);
@@ -80,22 +95,33 @@ namespace LoanManagementSystem.Controllers
             var digitalCard = new CreditCard
             {
                 LoanId = loan.Id,
+                UserId = loan.UserId,
                 CardNumber = await GenerateUniqueCardNumberAsync(),
                 ExpiryDate = DateTime.UtcNow.AddYears(3),
                 CVV = new Random().Next(100, 999).ToString(),
                 ApprovedAmount = loan.Amount / 2
             };
 
-            await _creditCardRepository.AddCreditCard(digitalCard);
-            await _creditCardRepository.SaveChanges();
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    await _creditCardRepository.AddCreditCard(digitalCard);
+                    await _loanRepository.SaveChanges();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        new { message = "An error occurred while approving the loan.", details = ex.Message });
+                }
+            }
 
             return Ok(new { message = "Loan approved successfully, and Digital Credit Card generated." });
         }
 
         // ✅ Onboard User After Loan Approval
-        /// <summary>
-        /// Onboard a user after loan approval
-        /// </summary>
         [HttpPost("onboard/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -131,9 +157,6 @@ namespace LoanManagementSystem.Controllers
         }
 
         // ✅ Reject Loan
-        /// <summary>
-        /// Reject a loan application
-        /// </summary>
         [HttpPut("reject/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -151,7 +174,7 @@ namespace LoanManagementSystem.Controllers
             return Ok(new { message = "Loan rejected successfully." });
         }
 
-        // ✅ Improved Method for Unique 16-digit Card Number Generation
+        // ✅ Generate Unique Card Number
         private async Task<string> GenerateUniqueCardNumberAsync()
         {
             string cardNumber;
@@ -166,14 +189,24 @@ namespace LoanManagementSystem.Controllers
 
             return cardNumber;
         }
-    }
 
-    // ✅ Loan Request DTO
-    public class LoanRequest
+        // ✅ Mapping Method for Loan DTO
+      // Inside LoanController.cs
+private LoanResponseDto MapToLoanDto(Loan loan)
+{
+    return new LoanResponseDto
     {
-        public int UserId { get; set; }
-        public decimal Amount { get; set; }
-        public string Purpose { get; set; }
-        public decimal MonthlySalary { get; set; }
+        Id = loan.Id,
+        UserId = loan.UserId ?? 0, // Default to 0 if null; assumes null is invalid
+        UserName = loan.User?.Username ?? "Unknown",
+        Amount = loan.Amount,
+        Purpose = loan.Purpose,
+        MonthlySalary = loan.MonthlySalary,
+        Status = loan.Status,
+        AppliedTime = loan.AppliedTime,
+        ApprovedTime = loan.ApprovedTime,
+        RejectedTime = loan.RejectedTime
+    };
+}
     }
 }
